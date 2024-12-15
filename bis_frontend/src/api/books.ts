@@ -1,5 +1,5 @@
 import { Books } from "./books.model";
-import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, } from '@tanstack/react-query'
 import { toast } from 'react-toastify';
 
 const addBooks = (data: Books) => fetch('/api/books/', {
