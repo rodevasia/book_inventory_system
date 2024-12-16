@@ -155,7 +155,37 @@ function BooksForm({ onSuccess, book }: NewBookProps) {
               onChange: zod
                 .string()
                 .nonempty("ISBN is required")
-                .regex(/^(?:\d{9}[\dX]|\d{13})$/, "Invalid ISBN"),
+                .refine(
+                  (isbn) => {
+                    // Remove hyphens for validation
+                    const cleanIsbn = isbn.replace(/-/g, "");
+
+                    // ISBN-10 validation
+                    const isISBN10 =
+                      /^[0-9]{9}[0-9X]$/.test(cleanIsbn) &&
+                      cleanIsbn.split("").reduce((sum, char, index) => {
+                        const digit = char === "X" ? 10 : parseInt(char, 10);
+                        return sum + digit * (10 - index);
+                      }, 0) %
+                        11 ===
+                        0;
+
+                    // ISBN-13 validation
+                    const isISBN13 =
+                      /^[0-9]{13}$/.test(cleanIsbn) &&
+                      cleanIsbn.split("").reduce((sum, char, index) => {
+                        const digit = parseInt(char, 10);
+                        return sum + digit * (index % 2 === 0 ? 1 : 3);
+                      }, 0) %
+                        10 ===
+                        0;
+
+                    return isISBN10 || isISBN13;
+                  },
+                  {
+                    message: "Invalid ISBN",
+                  }
+                ),
             }}
             name="isbn"
           >
